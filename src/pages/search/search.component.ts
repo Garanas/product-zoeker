@@ -294,13 +294,30 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   backspace() {
     const value = this.searchControl.value;
-    if (!value) return;
+    if (value === null || value === undefined) return;
 
-    if (value.length > 2) {
-      this.searchControl.setValue(value.slice(0, 2));
+    // Ensure we're working with a string representation
+    let stringifiedValue = value.toString();
+
+    // For numeric inputs, we need to handle the possibility that leading zeros were dropped
+    // Check both with and without the "0" prefix
+    if (stringifiedValue.startsWith('0200')) {
+      stringifiedValue = stringifiedValue.substring(4);
+      console.log(stringifiedValue);
+    } else if (stringifiedValue.startsWith('200')) {
+      // This handles cases where the input was a number and lost its leading zero
+      stringifiedValue = stringifiedValue.substring(3);
+      console.log(stringifiedValue);
+    }
+
+    if (stringifiedValue.length > 2) {
+      // Reduce to first two characters
+      this.searchControl.setValue(stringifiedValue.slice(0, 2));
     } else {
+      // For 1-2 characters, set to empty string
       this.searchControl.setValue('');
     }
+
   }
 
   selectItem(identifier: string) {

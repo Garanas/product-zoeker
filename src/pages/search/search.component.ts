@@ -15,7 +15,7 @@ import {KeyValuePipe} from '@angular/common';
       <h2 class="text-xl font-bold mb-4 text-gray-800">Search Identifiers</h2>
       <div class="mb-1">
         <input
-          type="text"
+          type="number"
           [formControl]="searchControl"
           placeholder="Enter identifier..."
           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

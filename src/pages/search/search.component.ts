@@ -25,13 +25,6 @@ import { Subscription } from 'rxjs';
             [ngClass]="barcodeDetected ? 'border-green-500 animate-pulse' : 'border-blue-500'"
           ></div>
         </div>
-
-        <div class="mb-3 p-2 rounded text-sm"
-             [ngClass]="barcodeDetected ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'"
-             class="flex items-center">
-          <span class="animate-pulse mr-2">●</span>
-          {{ barcodeDetected ? 'Barcode detected!' : 'Scanning for barcodes...' }}
-        </div>
       }
 
       <!-- Integrated search input and barcode button -->

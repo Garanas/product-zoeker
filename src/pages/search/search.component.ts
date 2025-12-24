@@ -1,5 +1,5 @@
-// src/app/search/search.component.ts (modified)
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+// src/app/search/search.component.ts
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { CsvService } from '../../services/DataService';
@@ -20,6 +20,14 @@ import { Subscription } from 'rxjs';
       <div class="mb-3 p-2 rounded text-sm" [ngClass]="barcodeApiSupported ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
         Barcode Detection API: {{ barcodeApiSupported ? 'Supported' : 'Not supported' }}
       </div>
+
+      <!-- Video preview for barcode scanning -->
+      @if (isScanning) {
+        <div class="mb-4 relative">
+          <video #videoElement class="w-full h-48 object-cover rounded-lg"></video>
+          <div class="absolute inset-0 border-2 border-blue-500 rounded-lg pointer-events-none"></div>
+        </div>
+      }
 
       <div class="mb-1 relative">
         <input
@@ -104,6 +112,8 @@ import { Subscription } from 'rxjs';
   `
 })
 export class SearchComponent implements OnInit, OnDestroy {
+  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
+
   searchControl = new FormControl('');
   results = new Map<string, string[]>();
   searchAttempted = false;
@@ -166,22 +176,26 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.isScanning = true;
     this.cdr.detectChanges();
 
-    // Start scanning and subscribe to barcode results
-    this.barcodeSubscription = this.barcodeService.startScanning().subscribe({
-      next: (barcode) => {
-        // Set the barcode value to the search input
-        this.searchControl.setValue(barcode);
+    // Wait for the video element to be available after change detection
+    setTimeout(() => {
+      // Start scanning and subscribe to barcode results
+      this.barcodeSubscription = this.barcodeService.startScanning(this.videoElement).subscribe({
+        next: (barcode) => {
+          console.log('Barcode detected:', barcode);
+          // Set the barcode value to the search input
+          this.searchControl.setValue(barcode);
 
-        // Note: We don't stop scanning as per requirements
-        // The user needs to manually stop the scanning
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Barcode scanning error:', error);
-        this.isScanning = false;
-        this.cdr.detectChanges();
-      }
-    });
+          // Note: We don't stop scanning as per requirements
+          // The user needs to manually stop the scanning
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Barcode scanning error:', error);
+          this.isScanning = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }, 0);
   }
 
   stopBarcodeScanning() {

@@ -1,5 +1,5 @@
 // src/services/BarcodeDetectionService.ts
-import { Injectable } from '@angular/core';
+import { ElementRef, Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 
 @Injectable({
@@ -11,6 +11,7 @@ export class BarcodeDetectionService {
   private videoElement: HTMLVideoElement | null = null;
   private detector: any = null;
   private barcodeSubject = new Subject<string>();
+  private mediaStream: MediaStream | null = null;
 
   constructor() {
     // Check if the Barcode Detection API is supported
@@ -34,9 +35,10 @@ export class BarcodeDetectionService {
 
   /**
    * Start scanning for barcodes using device camera
+   * @param videoElementRef Reference to a video element to display the camera feed
    * @returns Observable that emits barcode values when detected
    */
-  startScanning(): Observable<string> {
+  startScanning(videoElementRef: ElementRef<HTMLVideoElement>): Observable<string> {
     if (!this.isBarcodeDetectionSupported) {
       this.barcodeSubject.error(new Error('Barcode Detection API is not supported in this browser'));
       return this.barcodeSubject.asObservable();
@@ -48,18 +50,20 @@ export class BarcodeDetectionService {
 
     this.scannerActive = true;
 
-    // Create video element if it doesn't exist
-    if (!this.videoElement) {
-      this.videoElement = document.createElement('video');
-      this.videoElement.style.display = 'none';
-      document.body.appendChild(this.videoElement);
-    }
+    // Store reference to the provided video element
+    this.videoElement = videoElementRef.nativeElement;
 
     // Get user media (camera)
     navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' } // Use back camera if available
+      video: {
+        facingMode: 'environment', // Use back camera if available
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
     })
       .then(stream => {
+        this.mediaStream = stream;
+
         if (this.videoElement) {
           this.videoElement.srcObject = stream;
           this.videoElement.play();
@@ -83,10 +87,14 @@ export class BarcodeDetectionService {
     this.scannerActive = false;
 
     // Stop media stream
-    if (this.videoElement && this.videoElement.srcObject) {
-      const stream = this.videoElement.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+
+    if (this.videoElement) {
       this.videoElement.srcObject = null;
+      this.videoElement = null;
     }
   }
 

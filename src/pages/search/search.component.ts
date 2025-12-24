@@ -14,12 +14,7 @@ import { Subscription } from 'rxjs';
   imports: [ReactiveFormsModule, KeyValuePipe, TextFormatterPipe, NgClass],
   template: `
     <div class="max-w-md mx-auto my-5 p-6 bg-white rounded-lg shadow-md">
-      <h2 class="text-xl font-bold mb-4 text-gray-800">Search Identifiers</h2>
-
-      <!-- Barcode Detection API support status -->
-      <div class="mb-3 p-2 rounded text-sm" [ngClass]="barcodeApiSupported ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-        Barcode Detection API: {{ barcodeApiSupported ? 'Supported' : 'Not supported' }}
-      </div>
+      <h2 class="text-xl font-bold mb-4 text-gray-800">Zoeken</h2>
 
       <!-- Video preview for barcode scanning -->
       @if (isScanning) {
@@ -30,49 +25,62 @@ import { Subscription } from 'rxjs';
             [ngClass]="barcodeDetected ? 'border-green-500 animate-pulse' : 'border-blue-500'"
           ></div>
         </div>
+
+        <div class="mb-3 p-2 rounded text-sm"
+             [ngClass]="barcodeDetected ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'"
+             class="flex items-center">
+          <span class="animate-pulse mr-2">●</span>
+          {{ barcodeDetected ? 'Barcode detected!' : 'Scanning for barcodes...' }}
+        </div>
       }
 
-      <div class="mb-1 relative">
-        <input
-          type="number"
-          [formControl]="searchControl"
-          placeholder="Enter identifier..."
-          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
+      <!-- Integrated search input and barcode button -->
+      <div class="mb-4 flex">
+        <div class="relative flex-grow">
+          <input
+            type="number"
+            [formControl]="searchControl"
+            placeholder="Enter identifier..."
+            class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          @if (searchControl.value) {
+            <button
+              type="button"
+              (click)="searchControl.reset()"
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <span class="material-icons text-lg">clear</span>
+            </button>
+          }
+        </div>
 
         <!-- Barcode scanning button -->
         @if (barcodeApiSupported) {
           <button
             type="button"
             (click)="toggleBarcodeScanning()"
-            class="absolute right-2 top-2 p-1 rounded-md"
-            [ngClass]="isScanning ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'"
+            class="px-3 py-2 rounded-r-md flex items-center justify-center"
+            [ngClass]="isScanning ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'"
           >
-            <span class="material-icons text-lg">{{ isScanning ? 'stop' : 'qr_code_scanner' }}</span>
+            <span class="material-icons text-lg">{{ isScanning ? 'close' : 'qr_code_scanner' }}</span>
             <span class="sr-only">{{ isScanning ? 'Stop scanning' : 'Scan barcode' }}</span>
           </button>
         }
       </div>
 
-      <!-- Scanning status message -->
-      @if (isScanning) {
-        <div class="mb-3 p-2 rounded text-sm" [ngClass]="barcodeDetected ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="flex items-center">
-          <span class="animate-pulse mr-2">●</span>
-          {{ barcodeDetected ? 'Barcode detected!' : 'Scanning for barcodes...' }}
-        </div>
-      }
-
       <!-- Hint message -->
-      @if (!isScanning) {
+      @if (!isScanning && !searchControl.value) {
         <div class="text-xs text-gray-500 mb-4">
-          @if (searchControl.value && searchControl.value.toString().length < 3) {
-            Please enter at least 3 characters to search
-          } @else {
-            Enter search term to find identifiers
-          }
+          Zoeken naar een product nummer
+        </div>
+      } @else if (!isScanning && searchControl.value && searchControl.value.toString().length < 3) {
+        <div class="text-xs text-gray-500 mb-4">
+          Er moet minimaal 3 tekens zijn om te zoeken.
         </div>
       }
+    </div>
 
+    <div class="max-w-md mx-auto my-5 p-6 bg-white rounded-lg shadow-md">
       @if (results.size > 1) {
         <div class="mt-4">
           <h3 class="text-lg font-semibold mb-2 text-gray-700">Results:</h3>
@@ -92,17 +100,15 @@ import { Subscription } from 'rxjs';
       @if (results.size === 1) {
         <div class="mt-4">
           @for (item of results | keyvalue; track item.key) {
-            <div class="bg-white rounded-md shadow-sm p-4">
-              <h4 class="text-lg font-medium mb-2 text-blue-600">{{ item.key }}</h4>
-              <dl class="grid grid-cols-3 gap-x-4 gap-y-2">
-                @for (value of item.value; track $index) {
-                  @if (headers[$index]) {
-                    <dt class="col-span-1 text-sm font-medium text-gray-600">{{ headers[$index] }}</dt>
-                    <dd class="col-span-2 text-sm text-gray-800">{{ value | textFormatter }}</dd>
-                  }
+            <h4 class="text-lg font-medium mb-2 text-blue-600">{{ item.key }}</h4>
+            <dl class="grid grid-cols-3 gap-x-4 gap-y-2">
+              @for (value of item.value; track $index) {
+                @if (headers[$index]) {
+                  <dt class="col-span-1 text-sm font-medium text-gray-600">{{ headers[$index] }}</dt>
+                  <dd class="col-span-2 text-sm text-gray-800">{{ value | textFormatter }}</dd>
                 }
-              </dl>
-            </div>
+              }
+            </dl>
           }
         </div>
       }
@@ -112,6 +118,7 @@ import { Subscription } from 'rxjs';
           No results found.
         </div>
       }
+
     </div>
   `,
   styles: [`
@@ -125,6 +132,7 @@ import { Subscription } from 'rxjs';
     }
   `]
 })
+
 export class SearchComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
 

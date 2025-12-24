@@ -43,16 +43,17 @@ import { Subscription } from 'rxjs';
             placeholder="Enter identifier..."
             class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
+        </div>
           @if (searchControl.value) {
             <button
               type="button"
               (click)="searchControl.reset()"
-              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              class="px-3 py-2 rounded-r-md flex items-center bg-orange-300 hover:bg-orange-400 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <span class="material-icons text-lg">clear</span>
             </button>
           }
-        </div>
+
 
         <!-- Barcode scanning button -->
         @if (barcodeApiSupported) {

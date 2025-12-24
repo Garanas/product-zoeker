@@ -37,15 +37,15 @@ import { Subscription } from 'rxjs';
             class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
         </div>
-          @if (searchControl.value) {
-            <button
-              type="button"
-              (click)="searchControl.reset()"
-              class="px-3 py-2 rounded-r-md flex items-center bg-orange-300 hover:bg-orange-400 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <span class="material-icons text-lg">clear</span>
-            </button>
-          }
+
+          <button
+            type="button"
+            (click)="searchControl.reset()"
+            class="px-3 py-2 rounded-r-md flex items-center bg-orange-300 hover:bg-orange-400 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <span class="material-icons text-lg">backspace</span>
+          </button>
+
 
 
         <!-- Barcode scanning button -->

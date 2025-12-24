@@ -9,7 +9,7 @@ import { BarcodeDetectionService } from '../services/BarcodeDetectionService';
   standalone: true,
   imports: [RouterOutlet, NgClass],
   template: `
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-[100dvh]">
       <!-- Header -->
       <header class="bg-gray-800 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -34,23 +34,23 @@ import { BarcodeDetectionService } from '../services/BarcodeDetectionService';
       </header>
 
       <!-- Main content -->
-      <main class="flex-grow">
+      <main class="flex-grow overflow-y-auto">
         <router-outlet />
       </main>
 
       <!-- Footer -->
-      <footer class="bg-gray-100 border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 py-4">
+      <footer class="bg-gray-100 border-t border-gray-200 w-full">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4">
           <div class="flex flex-col sm:flex-row justify-between items-center">
-            <div class="text-gray-600 text-sm mb-2 sm:mb-0">
-              <div class="flex items-center text-xs px-2 py-1 rounded-full"
+            <div class="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-0">
+              <div class="flex items-center px-2 py-1 rounded-full"
                    [ngClass]="barcodeApiSupported ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
                 <span class="inline-block h-2 w-2 rounded-full mr-1"
                       [ngClass]="barcodeApiSupported ? 'bg-green-500' : 'bg-yellow-500'"></span>
                 {{ barcodeApiSupported ? 'Barcode API Ready' : 'Barcode API Not Supported' }}
               </div>
             </div>
-            <div class="flex flex-wrap items-center justify-center gap-4 text-sm">
+            <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm mt-2 sm:mt-0">
               <a href="#" class="text-gray-600 hover:text-gray-800 transition-colors">Hoe werkt het?</a>
               <a href="#" class="text-gray-600 hover:text-gray-800 transition-colors">Contact</a>
             </div>
@@ -59,6 +59,13 @@ import { BarcodeDetectionService } from '../services/BarcodeDetectionService';
       </footer>
     </div>
   `,
+  styles: [`
+    /* Additional fixes for mobile browsers */
+    :host {
+      display: block;
+      height: 100%;
+    }
+  `]
 })
 export class App implements OnInit {
   protected readonly title = signal('barcode-lookup');

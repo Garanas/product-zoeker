@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-csv-uploader',
   standalone: true,
-  imports: [SearchComponent, KeyValuePipe, JsonPipe, ReactiveFormsModule],
+  imports: [SearchComponent, ReactiveFormsModule],
   template: `
     <div class="max-w-4xl mx-auto p-6">
       <h1 class="text-2xl font-bold text-center mb-8 text-gray-800">Barcode mapper</h1>

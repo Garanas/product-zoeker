@@ -87,13 +87,14 @@ export class SearchComponent implements OnInit {
     this.searchControl.valueChanges.pipe(
       debounceTime(300), // 500ms delay
     ).subscribe(value => {
-      if (!value || value.trim().length < 3) {
+      const stringified  = value?.toString() || ''
+      if (!stringified || stringified.trim().length < 3) {
         // Reset search results if less than 3 characters
         this.results = new Map<string, string[]>();
         this.searchAttempted = false;
         this.cdr.detectChanges();
       } else {
-        this.search(value);
+        this.search(stringified);
         this.cdr.detectChanges();
       }
     });

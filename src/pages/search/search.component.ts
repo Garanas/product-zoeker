@@ -25,7 +25,10 @@ import { Subscription } from 'rxjs';
       @if (isScanning) {
         <div class="mb-4 relative">
           <video #videoElement class="w-full h-48 object-cover rounded-lg"></video>
-          <div class="absolute inset-0 border-2 border-blue-500 rounded-lg pointer-events-none"></div>
+          <div
+            class="absolute inset-0 border-2 rounded-lg pointer-events-none transition-colors duration-300"
+            [ngClass]="barcodeDetected ? 'border-green-500 animate-pulse' : 'border-blue-500'"
+          ></div>
         </div>
       }
 
@@ -53,8 +56,9 @@ import { Subscription } from 'rxjs';
 
       <!-- Scanning status message -->
       @if (isScanning) {
-        <div class="mb-3 p-2 rounded text-sm bg-blue-100 text-blue-800 flex items-center">
-          <span class="animate-pulse mr-2">●</span> Scanning for barcodes...
+        <div class="mb-3 p-2 rounded text-sm" [ngClass]="barcodeDetected ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'" class="flex items-center">
+          <span class="animate-pulse mr-2">●</span>
+          {{ barcodeDetected ? 'Barcode detected!' : 'Scanning for barcodes...' }}
         </div>
       }
 
@@ -109,7 +113,17 @@ import { Subscription } from 'rxjs';
         </div>
       }
     </div>
-  `
+  `,
+  styles: [`
+    @keyframes border-flash {
+      0%, 100% { border-color: #3B82F6; } /* blue-500 */
+      50% { border-color: #10B981; } /* green-500 */
+    }
+
+    .border-flash {
+      animation: border-flash 1s ease-in-out;
+    }
+  `]
 })
 export class SearchComponent implements OnInit, OnDestroy {
   @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
@@ -121,7 +135,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   exactSearch = false;
   barcodeApiSupported = false;
   isScanning = false;
+  barcodeDetected = false;
   private barcodeSubscription: Subscription | null = null;
+  private detectionResetTimeout: any = null;
 
   constructor(
     private csvService: CsvService,
@@ -160,6 +176,11 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.barcodeSubscription.unsubscribe();
       this.barcodeSubscription = null;
     }
+
+    // Clear any pending timeouts
+    if (this.detectionResetTimeout) {
+      clearTimeout(this.detectionResetTimeout);
+    }
   }
 
   toggleBarcodeScanning() {
@@ -174,6 +195,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (!this.barcodeApiSupported || this.isScanning) return;
 
     this.isScanning = true;
+    this.barcodeDetected = false;
     this.cdr.detectChanges();
 
     // Wait for the video element to be available after change detection
@@ -185,13 +207,27 @@ export class SearchComponent implements OnInit, OnDestroy {
           // Set the barcode value to the search input
           this.searchControl.setValue(barcode);
 
+          // Show green flash effect
+          this.barcodeDetected = true;
+          this.cdr.detectChanges();
+
+          // Reset the detection status after 2 seconds
+          if (this.detectionResetTimeout) {
+            clearTimeout(this.detectionResetTimeout);
+          }
+
+          this.detectionResetTimeout = setTimeout(() => {
+            this.barcodeDetected = false;
+            this.cdr.detectChanges();
+          }, 2000);
+
           // Note: We don't stop scanning as per requirements
           // The user needs to manually stop the scanning
-          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Barcode scanning error:', error);
           this.isScanning = false;
+          this.barcodeDetected = false;
           this.cdr.detectChanges();
         }
       });
@@ -210,7 +246,13 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.barcodeSubscription = null;
     }
 
+    // Clear any pending timeouts
+    if (this.detectionResetTimeout) {
+      clearTimeout(this.detectionResetTimeout);
+    }
+
     this.isScanning = false;
+    this.barcodeDetected = false;
     this.cdr.detectChanges();
   }
 

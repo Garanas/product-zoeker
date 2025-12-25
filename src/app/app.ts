@@ -21,7 +21,7 @@ import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
           <nav>
             <ul class="flex space-x-4 items-center">
               <li>
-                <a href="https://github.com" target="_blank" class="hover:text-blue-300 transition-colors">
+                <a href="https://github.com/Garanas/product-zoeker" target="_blank" class="hover:text-blue-300 transition-colors">
                   <span class="flex items-center">
                     <svg class="w-5 h-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
                       <path

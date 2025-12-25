@@ -49,7 +49,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
         <app-search></app-search>
       } @else {
         <div class="text-center p-8 bg-gray-50 rounded-md border border-gray-200 text-gray-600">
-          Upload a CSV file to begin mapping barcodes
+          Laad een csv-bestand in om te zoeken naar producten...
         </div>
       }
 

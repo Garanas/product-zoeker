@@ -90,7 +90,7 @@ import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
           </div>
         </div>
       </footer>
-
+    </div>
   `,
   styles: [`
     /* Root container styling */
